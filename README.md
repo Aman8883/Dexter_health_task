@@ -191,13 +191,13 @@ Briefly answer (4-8 sentences total):
    sync; a real situation in which `last_modified_by_caregiver` should
    matter for staleness) and how your code handles it.
 
--> Infinite Pagination Loop Traps:The docs warned about the same next_cursor being returned during errors. I used a set to track every cursor we've already processed. If we see the same token again, the sync stops with an error. This prevents the system from getting stuck in an infinite loop and wasting resources.
+-> *Infinite Pagination Loop Traps*:The docs warned about the same next_cursor being returned during errors. I used a set to track every cursor we've already processed. If we see the same token again, the sync stops with an error. This prevents the system from getting stuck in an infinite loop and wasting resources.
 
-->  API Casing Inconsistency: I noticed the API is inconsistent with field names, specifically using lastName in some places. I added a fallback check for both lastName and last_name during mapping. This makes our integration more stable if the provider team changes their field casing.
+->  *API Casing Inconsistency*: I noticed the API is inconsistent with field names, specifically using lastName in some places. I added a fallback check for both lastName and last_name during mapping. This makes our integration more stable if the provider team changes their field casing.
 
--> Fault isolation :  If one resident's data is malformed (e.g., missing an ID), I catch that specific error and move to the next record instead of letting the whole sync fail. This ensures we ingest as much valid data as possible even if a few records are broken.
+-> *Fault isolation* :  If one resident's data is malformed (e.g., missing an ID), I catch that specific error and move to the next record instead of letting the whole sync fail. This ensures we ingest as much valid data as possible even if a few records are broken.
 
--> Validation for Unknown Formats: If 'care_level' comes in a format we don't recognize (like a random string or a list), the code raises a validation error for that record. It's better to fail the individual record than to save corrupted data into our database.
+-> *Validation for Unknown Formats*: If 'care_level' comes in a format we don't recognize (like a random string or a list), the code raises a validation error for that record. It's better to fail the individual record than to save corrupted data into our database.
 
 We will challenge these decisions with a fresh provider example in the
 technical interview.
@@ -212,14 +212,14 @@ technical interview.
   3. Staleness Protection: Added a check to only upsert if incoming last_updated is strictly newer than existing data, ensuring system idempotency.
 
   Tradeoffs you made
-  1. Strict Comparison: I used > for timestamps. Equal timestamps are skipped to reduce redundant database I/O, though it means no "refresh" for identical records.
-  2. Retry Caps: Capped retries at 3 attempts with a 1s maximum wait to prevent the sync process from hanging and to meet SLA windows.
-  3. In-memory tracking: Used a Python set for seen cursors. Efficient for current data volumes, but would require external state (Redis) for extremely large datasets.
+  1. *Strict Comparison*: I used > for timestamps. Equal timestamps are skipped to reduce redundant database I/O, though it means no "refresh" for identical records.
+  2. *Retry Caps*: Capped retries at 3 attempts with a 1s maximum wait to prevent the sync process from hanging and to meet SLA windows.
+  3. *In-memory tracking*: Used a Python set for seen cursors. Efficient for current data volumes, but would require external state (Redis) for extremely large datasets.
 
   What you would improve with more time
-   1. Observability: Implement structured JSON logging (e.g., structlog) to make production debugging easier.
-   2. Concurrency: Implement parallel page fetching to increase throughput for large datasets.
-   3. Circuit Breaker: Add a circuit breaker to stop the sync early if the error rate exceeds a certain threshold.
+   1. *Observability*: Implement structured JSON logging (e.g., structlog) to make production debugging easier.
+   2. *Concurrency*: Implement parallel page fetching to increase throughput for large datasets.
+   3. *Circuit Breaker*: Add a circuit breaker to stop the sync early if the error rate exceeds a certain threshold.
 
   How you used AI tools and verified output
    1. Used AI to generate mapping boilerplate and brainstorm edge-case test scenarios.
@@ -232,4 +232,5 @@ technical interview.
    3. Extended Validation: Authored 3 additional tests in tests/test_my_sync.py to verify loop protection, transient error recovery, and complex mapping logic.
 
   Your honest time spent
-  Approximately 3.5 hours of focused development and testing.
+  
+  Approximately *3.5 hours* of focused development and testing.
